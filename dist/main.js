@@ -46,33 +46,32 @@ var path_1 = __importDefault(require("path"));
 var systeminformation_1 = __importDefault(require("systeminformation"));
 var ETHERSCAN_API_KEY = 'I72EM35CDD1YYHBHNA5RGIT2C7J1FMRKGT';
 var SystemTrayInfo = /** @class */ (function () {
-    function SystemTrayInfo() {
-        this.ethUSDT = { assetname: 'ETHUSDT', assetvalue: '' };
-        this.init();
-    }
-    SystemTrayInfo.prototype.init = function () {
-        if (electron_1.app !== undefined) {
-            this.app = electron_1.app;
-            this.app.on('ready', this.initApplication());
+    function SystemTrayInfo(app, browserWindow) {
+        var _this = this;
+        this.app = app;
+        this.browserWindow = browserWindow;
+        if (this.app !== undefined) {
+            this.app.on('ready', function () { return _this.initApplication(); });
         }
         else {
             throw new Error("Electron App not defined.");
         }
-    };
+    }
     SystemTrayInfo.prototype.initApplication = function () {
         var _this = this;
+        // this.browserWindow = new BrowserWindow({ width: 800, height: 600, frame: false });
         var trayIcon = path_1.default.join(__dirname, 'tick.png');
-        this.tray = new electron_1.Tray(trayIcon);
-        this.tray.setTitle('Getting market price of ETHUSD...');
-        this.tray.setToolTip('System details...');
+        SystemTrayInfo.tray = new electron_1.Tray(trayIcon);
+        SystemTrayInfo.tray.setTitle('Getting market price of ETHUSD...');
+        SystemTrayInfo.tray.setToolTip('System details...');
         var contextMenu = electron_1.Menu.buildFromTemplate([
             { label: 'CPU', type: 'normal', click: this.getSystemInformation },
             { label: 'Update', type: 'normal', click: this.updatePrice },
             { label: 'Quit', click: function () { _this.app.quit(); } },
         ]);
-        this.updatePrice();
-        this.getSystemInformation();
-        this.tray.setContextMenu(contextMenu);
+        SystemTrayInfo.tray.setContextMenu(contextMenu);
+        // this.updatePrice();
+        // this.getSystemInformation();
     };
     SystemTrayInfo.prototype.getSystemInformation = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -103,22 +102,27 @@ var SystemTrayInfo = /** @class */ (function () {
         });
     };
     SystemTrayInfo.prototype.updatePrice = function () {
-        var _this = this;
         var url = 'https://api.etherscan.io/api?module=stats&action=ethprice&apikey=' + ETHERSCAN_API_KEY;
         request_1.default({
             url: url,
-        }, function (err, res, body) {
+        }, function (err, _res, body) {
             console.log(body);
-            if (err) {
-                _this.tray.setToolTip('Error getting market price.');
+            try {
+                if (err) {
+                    SystemTrayInfo.tray.setToolTip('Error getting market price.');
+                }
+                else {
+                    SystemTrayInfo.ethUSDT.assetvalue = JSON.parse(body).result.ethusd;
+                    var timestamp = moment_1.default().format('YYYY-MM-DD HH:mm');
+                    SystemTrayInfo.tray.setToolTip("$" + SystemTrayInfo.ethUSDT.assetvalue + " as of " + timestamp);
+                }
             }
-            else {
-                _this.ethUSDT.assetvalue = JSON.parse(body).result.ethusd;
-                var timestamp = moment_1.default().format('YYYY-MM-DD HH:mm');
-                _this.tray.setToolTip("$" + _this.ethUSDT.assetvalue + " as of " + timestamp);
+            catch (err) {
+                console.log(err);
             }
         });
     };
+    SystemTrayInfo.ethUSDT = { assetname: 'ETHUSDT', assetvalue: '' };
     return SystemTrayInfo;
 }());
-exports.SystemTrayInfo = SystemTrayInfo;
+exports.default = SystemTrayInfo;

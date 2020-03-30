@@ -1,45 +1,41 @@
-import { app, Tray, Menu, BrowserWindow } from 'electron';
+import { Tray, Menu, BrowserWindow } from 'electron';
 import request from 'request';
 import moment from 'moment';
 import path from 'path';
 import sysInfo from 'systeminformation';
-interface CryptoAsset {
-  assetname: String,
-  assetvalue: String
-}
+import { CryptoAsset } from './CryptoAsset';
+
 const ETHERSCAN_API_KEY = 'I72EM35CDD1YYHBHNA5RGIT2C7J1FMRKGT';
-export class SystemTrayInfo {
-  tray: any;
-  app: any;
-  ethUSDT: CryptoAsset = { assetname: 'ETHUSDT', assetvalue: '' }
-  constructor() {
-    this.init();
-  }
-  init() {
-    if (app !== undefined) {
-      this.app = app;
-      this.app.on('ready', this.initApplication());
+export default class SystemTrayInfo {
+  private static tray: any;
+  app: Electron.App;
+  browserWindow: any;
+  private static ethUSDT: CryptoAsset = { assetname: 'ETHUSDT', assetvalue: '' }
+  constructor(app: Electron.App, browserWindow: typeof BrowserWindow) {
+    this.app = app;
+    this.browserWindow = browserWindow;
+    if (this.app !== undefined) {
+      this.app.on('ready', () => this.initApplication());
     } else {
       throw new Error("Electron App not defined.");
-
     }
   }
-  initApplication(): any {
+  private initApplication() {
+    // this.browserWindow = new BrowserWindow({ width: 800, height: 600, frame: false });
     const trayIcon = path.join(__dirname, 'tick.png');
-    this.tray = new Tray(trayIcon);
-
-    this.tray.setTitle('Getting market price of ETHUSD...');
-    this.tray.setToolTip('System details...');
+    SystemTrayInfo.tray = new Tray(trayIcon);
+    SystemTrayInfo.tray.setTitle('Getting market price of ETHUSD...');
+    SystemTrayInfo.tray.setToolTip('System details...');
     const contextMenu = Menu.buildFromTemplate([
       { label: 'CPU', type: 'normal', click: this.getSystemInformation },
       { label: 'Update', type: 'normal', click: this.updatePrice },
       { label: 'Quit', click: () => { this.app.quit(); } },
     ]);
-    this.updatePrice();
-    this.getSystemInformation();
-    this.tray.setContextMenu(contextMenu);
+    SystemTrayInfo.tray.setContextMenu(contextMenu);
+    // this.updatePrice();
+    // this.getSystemInformation();
   }
-  async getSystemInformation() {
+  private async getSystemInformation() {
     try {
       const data = await sysInfo.cpu();
       console.log('CPU Information:');
@@ -53,18 +49,23 @@ export class SystemTrayInfo {
       console.log(e);
     }
   }
-  updatePrice() {
+  private updatePrice() {
     const url = 'https://api.etherscan.io/api?module=stats&action=ethprice&apikey=' + ETHERSCAN_API_KEY;
     request({
       url: url,
-    }, (err, res, body) => {
+    }, (err, _res, body) => {
       console.log(body);
-      if (err) {
-        this.tray.setToolTip('Error getting market price.');
-      } else {
-        this.ethUSDT.assetvalue = JSON.parse(body).result.ethusd;
-        const timestamp = moment().format('YYYY-MM-DD HH:mm');
-        this.tray.setToolTip(`$${this.ethUSDT.assetvalue} as of ${timestamp}`);
+      try {
+        if (err) {
+          SystemTrayInfo.tray.setToolTip('Error getting market price.');
+        } else {
+          SystemTrayInfo.ethUSDT.assetvalue = JSON.parse(body).result.ethusd;
+          const timestamp = moment().format('YYYY-MM-DD HH:mm');
+          SystemTrayInfo.tray.setToolTip(`$${SystemTrayInfo.ethUSDT.assetvalue} as of ${timestamp}`);
+        }
+      }
+      catch (err) {
+        console.log(err);
       }
     });
   }
