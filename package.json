@@ -7,19 +7,19 @@
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start": "npm run build && electron ./dist/main.ts"
+    "start": "electron ./dist/main.js"
   },
   "repository": {},
   "author": "Mayank Saxena",
   "dependencies": {
     "moment": "^2.18.1",
+    "request": "^2.88.2",
     "systeminformation": "^4.23.1"
   },
   "devDependencies": {
-    "tslint": "^5.20.1",
-    "electron": "^8.2.0",
-    "typescript": "^3.8.3",
     "@types/node": "^12.12.6",
-    "@types/request": "^2.48.4"
+    "electron": "^8.2.0",
+    "tslint": "^5.20.1",
+    "typescript": "^3.8.3"
   }
 }
