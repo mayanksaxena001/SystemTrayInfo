@@ -2,14 +2,20 @@
   "name": "systemtray",
   "version": "1.0.0",
   "description": "Display current ETH-USD market price in the system tray.",
-  "main": "main.ts",
+  "main": "src/main.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc ",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "npm run build && electron ./dist/app.js"
   },
-  "repository": {},
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mayanksaxena001/SystemTrayInfo.git"
+  },
   "author": "Mayank Saxena",
   "dependencies": {
     "moment": "^2.18.1",

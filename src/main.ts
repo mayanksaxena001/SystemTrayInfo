@@ -22,13 +22,13 @@ export default class SystemTrayInfo {
   }
   private initApplication() {
     // this.browserWindow = new BrowserWindow({ width: 800, height: 600, frame: false });
-    const trayIcon = path.join(__dirname, 'tick.png');
+    const trayIcon = path.join(__dirname, 'assets/tick.png');
     SystemTrayInfo.tray = new Tray(trayIcon);
     SystemTrayInfo.tray.setTitle('Getting market price of ETHUSD...');
     SystemTrayInfo.tray.setToolTip('System details...');
     const contextMenu = Menu.buildFromTemplate([
-      { label: 'CPU', type: 'normal', click: this.getSystemInformation },
-      { label: 'Update', type: 'normal', click: this.updatePrice },
+      { label: 'CPU', type: 'normal',toolTip:'Cpu Details', click: this.getSystemInformation },
+      { label: 'Update', type: 'normal',accelerator:'CommandOrControl+U', click: this.updatePrice },
       { label: 'Quit', click: () => { this.app.quit(); } },
     ]);
     SystemTrayInfo.tray.setContextMenu(contextMenu);
