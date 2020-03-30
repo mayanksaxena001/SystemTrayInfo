@@ -1,0 +1,25 @@
+{
+  "name": "systemtray",
+  "version": "1.0.0",
+  "description": "Display current ETH-USD market price in the system tray.",
+  "main": "main.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start": "npm run build && electron ./dist/main.ts"
+  },
+  "repository": {},
+  "author": "Mayank Saxena",
+  "dependencies": {
+    "moment": "^2.18.1",
+    "systeminformation": "^4.23.1"
+  },
+  "devDependencies": {
+    "tslint": "^5.20.1",
+    "electron": "^8.2.0",
+    "typescript": "^3.8.3",
+    "@types/node": "^12.12.6",
+    "@types/request": "^2.48.4"
+  }
+}
